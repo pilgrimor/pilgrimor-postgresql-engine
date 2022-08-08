@@ -61,16 +61,7 @@ class PostgreSQLEngine:
                 )
                 result = cursor.fetchall()
 
-        result_length = len(result)
-
-        if result_length > 1:
-            return result
-        elif result_length == 1:
-            return list(result[0])
-        elif result_length == 0:
-            return None
-
-        return None
+        return self._form_result(result=result)
 
     def execute_sql_no_return(
         self,
@@ -95,3 +86,26 @@ class PostgreSQLEngine:
                     query=sql_query,
                     params=sql_query_params,
                 )
+
+    def _form_result(self, result: Any) -> Optional[List[Any]]:
+        """
+        Create list with record from query result.
+
+        :param result: result from query.
+
+        :returns: :return: None or list with results.
+        """
+        result_length = len(result)
+
+        if result_length == 1:
+            return list(result[0])
+        elif result_length == 0:
+            return None
+
+        to_return_result = []
+        for record in result:
+            if len(record) == 1:
+                to_return_result.append(record[0])
+            elif len(record) > 1:
+                to_return_result.append(record)
+        return to_return_result
